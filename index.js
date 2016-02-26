@@ -87,4 +87,4 @@ bleno.once('advertisingStart', function(err) {
   ]);
 });
 
-eddystone.advertiseUrl(config.shortURL, {name: 'Lights'});
+eddystone.advertiseUrl(config.shortURL, {name: config.name});
