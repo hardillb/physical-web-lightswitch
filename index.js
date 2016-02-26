@@ -61,7 +61,7 @@ function bleToggleCallback(state) {
   }
 }
 
-function bleTDimCallback(state) {
+function bleDimCallback(state) {
   if (state >0) {
     wemo.setStatus(device,'10006,10008','1,' + state);
   }
