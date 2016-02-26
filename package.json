@@ -1,0 +1,20 @@
+{
+  "name": "ble-lights",
+  "version": "0.0.0",
+  "description": "Physical Web light switch",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "hardillb@gmail.com",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "eddystone-beacon": "~1.0.5",
+    "express": "~4.13.4",
+    "bleno": "~0.3.5",
+    "q": "~1.4.1",
+    "node-ssdp": "~2.7.0",
+    "xml2js": "~0.4.16",
+    "request": "~2.69.0"
+  }
+}

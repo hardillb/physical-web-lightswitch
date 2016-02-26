@@ -1,0 +1,48 @@
+<html>
+<head>
+	<title>Light Switch</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+	<div id="controls">
+		<div>
+			<button id="on">On</button>
+			<button id="off">Off</button>
+		</div>
+		<div>
+			<label for="dim">Dimmer</label>
+			<br />
+			<input id="dim" type="range" min="0" max="255" value="255" />
+		</div>
+	</div>
+	<script type="text/javascript">
+
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState == 4 && xhr.status == 200) {
+				console.log("done");
+			}
+		}
+		document.getElementById('on').onclick = function() {
+			console.log("on");
+			xhr.open("POST", "/toggle/on", true);
+			xhr.send();
+		};
+
+		document.getElementById('off').onclick = function() {
+			console.log("off");
+			xhr.open("POST", "/toggle/off", true);
+			xhr.send();
+		};
+
+		var dimmer = document.getElementById('dim');
+		dimmer.onchange = function() {
+			console.log(dimmer.value);
+			xhr.open("POST", "/dim/" + dimmer.value, true);
+			xhr.send();
+		};
+
+
+	</script>
+</body>
+</html>

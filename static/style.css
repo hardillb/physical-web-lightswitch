@@ -1,0 +1,15 @@
+
+#controls {
+	width: 75%
+	margin: auto;
+}
+
+button {
+	width: 30%;
+	height: 10%;
+}
+
+input {
+	width: 70%;
+	height: 10%;
+}
