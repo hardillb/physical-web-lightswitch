@@ -32,3 +32,4 @@ this can be done with this command:
 ## TODO
 
  - Add current state to the web interface
+ - Add Web Bluetooth Access API support
