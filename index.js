@@ -53,8 +53,22 @@ app.post('/dim/:range', function(req,res){
 
 app.listen(config.port);
 
-var toggle = new ToggleCharacteristic();
-var dim = new RangeCharacteristic();
+function bleToggleCallback(state) {
+  if (state == 'on') {
+    wemo.setStatus(device,'10006',1);
+  } else {
+    wemo.setStatus(device,'10006',0);
+  }
+}
+
+function bleTDimCallback(state) {
+  if (state >0) {
+    wemo.setStatus(device,'10006,10008','1,' + state);
+  }
+}
+
+var toggle = new ToggleCharacteristic(bleToggleCallback);
+var dim = new RangeCharacteristic(bleDimCallback);
 
 
 bleno.once('advertisingStart', function(err) {

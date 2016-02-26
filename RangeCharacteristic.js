@@ -1,25 +1,29 @@
 var bleno = require('bleno');
 var util = require('util');
 
-function RangeCharacteristic() {
+function RangeCharacteristic(callback) {
   bleno.Characteristic.call(this, {
     uuid: '6bcb06e2747542a9a62a54a1f3ce11e5',
     properties: ['read', 'write', 'notify'],
       descriptors: [
         new bleno.Descriptor({
-          uuid: '2902',
+          uuid: '2901',
           value: 'Dim'
         })
       ]
   });
 
   this._state = 255;
+  this._callback = callback
 }
 
 util.inherits(RangeCharacteristic, bleno.Characteristic);
 
 RangeCharacteristic.prototype.onWriteRequest = function(data, offset, withoutResponse, callback) {
-  this._state = data;
+  if (this._state != data) {
+    this._state = data;
+    this._callback(data);
+  }
 
   callback(this.RESULT_SUCCESS);
 }
