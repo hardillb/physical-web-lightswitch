@@ -1,7 +1,7 @@
 var bleno = require('bleno');
 var util = require('util');
 
-function ToggleCharacteristic() {
+function ToggleCharacteristic(callback) {
   bleno.Characteristic.call(this, {
     uuid: '6bcb06e2747542a9a62a54a1f3ce11e6',
     properties: ['read', 'write', 'notify'],
@@ -14,12 +14,16 @@ function ToggleCharacteristic() {
   });
 
   this._state = false;
+  this._callback = callback;
 }
 
 util.inherits(ToggleCharacteristic, bleno.Characteristic);
 
 ToggleCharacteristic.prototype.onWriteRequest = function(data, offset, withoutResponse, callback) {
-  this._state = data;
+  if (this._state != data) {
+    this._state = data;
+    this._callback(data);
+  }
 
   callback(this.RESULT_SUCCESS);
 }
