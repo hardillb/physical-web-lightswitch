@@ -14,6 +14,9 @@
 			<br />
 			<input id="dim" type="range" min="0" max="255" value="255" />
 		</div>
+		<div>
+			<button id="ble" hidden="true">ble</button>
+		</div>
 	</div>
 	<script type="text/javascript">
 
@@ -42,10 +45,37 @@
 			xhr.send();
 		};
 
-
-
+		
 		if (navigator.bluetooth) {
-			console.log("bluetooth found");
+			var ble = document.getElementById("ble");
+			ble.hidden = false;
+			ble.onclick = function() {
+				console.log("bluetooth found");
+				navigator.bluetooth.requestDevice({
+				  filters: [{
+				    services: ['ba42561b-b1d2-440a-8d04-0cefb43faece']
+				  }]
+				})
+				.then(device => {
+					console.log(device.name);
+					console.log(device.uuids);
+					device.connectGATT();
+				})
+				.then(server => {
+					return server.getPrimaryService('ba42561b-b1d2-440a-8d04-0cefb43faece');
+				})
+				.then(service => {
+					service.getCharacteristic('6bcb06e2-7475-42a9-a62a-54a1f3ce11e6');
+				})
+				.then( characteristic => {
+					//turn on
+					var resetEnergyExpended = new Uint8Array([1]);
+  					return characteristic.writeValue(resetEnergyExpended);
+				})
+				.catch(error => { 
+					console.log("error:- " + error); 
+				});
+			}
 		}
 	</script>
 </body>

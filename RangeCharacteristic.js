@@ -20,9 +20,11 @@ function RangeCharacteristic(callback) {
 util.inherits(RangeCharacteristic, bleno.Characteristic);
 
 RangeCharacteristic.prototype.onWriteRequest = function(data, offset, withoutResponse, callback) {
-  if (this._state != data) {
-    this._state = data;
-    this._callback(data);
+  console.log("RANGE Write request " + data.toString('hex'));
+  var dim = data.readUInt8(0);
+  if (this._state != dim) {
+    this._state = dim;
+    this._callback(dim);
   }
 
   callback(this.RESULT_SUCCESS);
@@ -32,7 +34,9 @@ RangeCharacteristic.prototype.onWriteRequest = function(data, offset, withoutRes
 RangeCharacteristic.prototype.onReadRequest = function(offset, callback) {
   console.log("READING: " + this._state.toString());
   console.log("OFFSET: " + offset);
-  callback(this.RESULT_SUCCESS, this._value);
+  var buf = new Buffer(1);
+  buf.writeUInt8(this._state);
+  callback(this.RESULT_SUCCESS, buf);
 }
 
 RangeCharacteristic.prototype.onSubscribe = function(maxValueSize, updateValueCallback) {
@@ -47,7 +51,9 @@ RangeCharacteristic.prototype.update = function(value) {
   this._state = value;
   console.log(this._state.toString());
   if (this._updateValueCallback) {
-    this._updateValueCallback(this._state);
+    var buf = new Buffer(1);
+    buf.writeUInt8(this._state);
+    this._updateValueCallback(buf);
   }
 }
 

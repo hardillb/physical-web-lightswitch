@@ -20,19 +20,34 @@ function ToggleCharacteristic(callback) {
 util.inherits(ToggleCharacteristic, bleno.Characteristic);
 
 ToggleCharacteristic.prototype.onWriteRequest = function(data, offset, withoutResponse, callback) {
-  if (this._state != data) {
-    this._state = data;
-    this._callback(data);
+  // console.log("Toggle Write request " + data.toString('hex'));
+  // console.log("Toggle Write request offset " + offset);
+
+  var s = data.readUInt8(0);
+  // console.log(s);
+  if (s) {
+    this._state = true;
+  } else {
+    this._state = false;
   }
+  this._callback(this._state);
+  
 
   callback(this.RESULT_SUCCESS);
 }
 
 
 ToggleCharacteristic.prototype.onReadRequest = function(offset, callback) {
-  console.log("READING: " + this._state.toString());
-  console.log("OFFSET: " + offset);
-  callback(this.RESULT_SUCCESS, this._value);
+  // console.log("Toggle READING: " + this._state.toString());
+  // console.log("Toggle OFFSET: " + offset);
+  var buf = new Buffer(1);
+  if (this._state) {
+    buf.writeUInt8(1);
+    callback(this.RESULT_SUCCESS, buf);
+  } else {
+    buf.writeUInt8(0);
+    callback(this.RESULT_SUCCESS, buf);
+  }
 }
 
 ToggleCharacteristic.prototype.onSubscribe = function(maxValueSize, updateValueCallback) {
@@ -47,7 +62,9 @@ ToggleCharacteristic.prototype.update = function(value) {
   this._state = value;
   console.log(this._state.toString());
   if (this._updateValueCallback) {
-    this._updateValueCallback(this._state);
+    var buf = new Buffer(1);
+    buf.writeUInt8(this._state);
+    this._updateValueCallback(buf);
   }
 }
 
