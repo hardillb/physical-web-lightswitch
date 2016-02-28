@@ -23,13 +23,8 @@ ToggleCharacteristic.prototype.onWriteRequest = function(data, offset, withoutRe
   // console.log("Toggle Write request " + data.toString('hex'));
   // console.log("Toggle Write request offset " + offset);
 
-  var s = data.readUInt8(0);
-  // console.log(s);
-  if (s) {
-    this._state = true;
-  } else {
-    this._state = false;
-  }
+  this._state = data.readUInt8(0);
+  
   this._callback(this._state);
   
 

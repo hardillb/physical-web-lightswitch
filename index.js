@@ -9,8 +9,66 @@ var express = require('express');
 var BlenoPrimarySerivce = bleno.PrimaryService;
 var ToggleCharacteristic = require('./ToggleCharacteristic');
 var RangeCharacteristic = require('./RangeCharacteristic');
+var RGBCharacteristic = require('./RGBCharacteristic');
+
 
 var config = require('./config.js');
+
+function toggleCallback(state) {
+  console.log("toggle - " + state);
+  if (state) {
+    wemo.setStatus(device,'10006',1);
+  } else {
+    wemo.setStatus(device,'10006',0);
+  }
+}
+
+function dimCallback(state) {
+  console.log("bleDim - " + state);
+  if (state >0) {
+    wemo.setStatus(device,'10006,10008','1,' + state);
+  }
+}
+
+function rgbCallback(red, green, blue) {
+  var xy = wemo.rgb2xy(red,green,blue)
+  wemo.setStatus(device,'10300','');
+}
+
+var toggle = new ToggleCharacteristic(toggleCallback);
+var dim = new RangeCharacteristic(dimCallback);
+var rgb = new RGBCharacteristic(rgbCallback);
+
+var characteristics = [toggle, dim];
+
+
+var app = express();
+
+app.use(express.static('static'));
+
+app.post('/toggle/:on', function(req, res){
+  console.log("web toggle " + req.params.on);
+  var state = req.params.on === 'on' ? 1 : 0;
+  toggleCallback(state);
+  toggle.update(state);
+  res.send();
+});
+
+app.post('/dim/:range', function(req,res){
+  console.log("web dim " + req.params.range);
+  var state = req.params.range;
+  if (state) {
+    toggleCallback(1);
+    toggle.update(1);
+    dimCallback(state);
+    dim.update(state);
+  } else {
+    toggleCallback(0);
+    toggle.update(0);
+    dim.update(0);    
+  }
+  res.send();
+});
 
 var deviceID = config.deviceID;
 var device;
@@ -19,39 +77,30 @@ var WeMoNG = require('./lib/wemo');
 var wemo = new WeMoNG();
 
 var interval = setInterval(wemo.start.bind(wemo), 60000);
+
+wemo.on('discovered', function(d){
+  if (d === deviceID) {
+    device = wemo.get(d);
+    console.log("found light configured " + device.name);
+    // console.log("%j",device.capabilities);
+    if (device.capabilities.indexOf('10300') != -1) {
+      console.log("RGB enabled");
+      characteristics.push(rgb);
+
+      app.post('/rgb/:colours', function(req,res){
+        var colour = req.params.colours;
+        console.log("colours " + colours);
+        var red = parseInt('0x' + colours.substring(0,2), 'hex');
+        var green = parseInt('0x' + colours.substring(2,4), 'hex');
+        var blue = parseInt('0x' + colours.substring(4,6), 'hex');
+        rgbCallback(red,green,blue);
+        rgb.update(red,green,blue);
+      });
+    }
+  }
+});
 wemo.start();
 
-if (!wemo.get(deviceID)) {
-  wemo.on('discovered', function(d){
-    if (d === deviceID) {
-      device = wemo.get(d);
-      console.log("found light configured Light");
-    }
-  });
-} else {
-  device = wemo.get(deviceID);
-  console.log("found light configured Light");
-}
-
-var app = express();
-
-app.use(express.static('static'));
-
-app.post('/toggle/:on', function(req, res){
-  console.log("web toggle " + req.params.on);
-  if (req.params.on === 'on') {
-    wemo.setStatus(device,'10006',1);
-  } else {
-    wemo.setStatus(device,'10006',0);
-  }
-  res.send();
-});
-
-app.post('/dim/:range', function(req,res){
-  console.log("web dim " + req.params.range);
-  wemo.setStatus(device,'10006,10008','1,' + req.params.range);
-  res.send();
-});
 
 if (config.cert && config.key) {
   var privateKey  = fs.readFileSync(config.key, 'utf8');
@@ -63,26 +112,6 @@ if (config.cert && config.key) {
   var httpServer = http.createServer(app);
   httpServer.listen(config.port);
 }
-
-
-function bleToggleCallback(state) {
-  console.log("bleToggle - " + state);
-  if (state == 'on') {
-    wemo.setStatus(device,'10006',1);
-  } else {
-    wemo.setStatus(device,'10006',0);
-  }
-}
-
-function bleDimCallback(state) {
-  console.log("bleDim - " + state);
-  if (state >0) {
-    wemo.setStatus(device,'10006,10008','1,' + state);
-  }
-}
-
-var toggle = new ToggleCharacteristic(bleToggleCallback);
-var dim = new RangeCharacteristic(bleDimCallback);
 
 
 bleno.once('advertisingStart', function(err) {
