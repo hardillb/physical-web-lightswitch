@@ -15,6 +15,11 @@
 			<input id="dim" type="range" min="0" max="255" value="255" />
 		</div>
 		<div>
+			<label for="colour">Colour</label>
+			<br />
+			<input type="color" id="colour" value="#ffffff"/>
+		</div>
+		<div>
 			<button id="ble" hidden="true">ble</button>
 		</div>
 	</div>
@@ -42,6 +47,13 @@
 		dimmer.onchange = function() {
 			console.log(dimmer.value);
 			xhr.open("POST", "/dim/" + dimmer.value, true);
+			xhr.send();
+		};
+
+		var colour = document.getElementById('colour');
+		colour.onchange = function() {
+			console.log(colour.value);
+			xhr.open("POST", "/rgb/" + colour.value.substring(1), true);
 			xhr.send();
 		};
 
