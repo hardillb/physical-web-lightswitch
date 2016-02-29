@@ -16,7 +16,7 @@ var config = require('./config.js');
 
 function toggleCallback(state) {
   console.log("toggle - " + state);
-  if (state) {
+  if (state === 1) {
     wemo.setStatus(device,'10006',1);
   } else {
     wemo.setStatus(device,'10006',0);
@@ -32,7 +32,7 @@ function dimCallback(state) {
 
 function rgbCallback(red, green, blue) {
   var xy = wemo.rgb2xy(red,green,blue)
-  wemo.setStatus(device,'10300','');
+  wemo.setStatus(device,'10300',xy[0] + ',' + xy[1]);
 }
 
 var toggle = new ToggleCharacteristic(toggleCallback);
@@ -97,6 +97,23 @@ wemo.on('discovered', function(d){
         rgb.update(red,green,blue);
       });
     }
+
+    bleno.once('advertisingStart', function(err) {
+    if (err) {
+      throw err;
+    }
+
+    bleno.setServices([
+      new BlenoPrimarySerivce({
+      uuid: 'ba42561bb1d2440a8d040cefb43faece',
+      characteristics: characteristics
+    })
+    ]);
+  });
+
+  eddystone.advertiseUrl(config.shortURL, {name: config.name});
+
+
   }
 });
 wemo.start();
@@ -114,20 +131,3 @@ if (config.cert && config.key) {
 }
 
 
-bleno.once('advertisingStart', function(err) {
-  if (err) {
-    throw err;
-  }
-
-  bleno.setServices([
-    new BlenoPrimarySerivce({
-		uuid: 'ba42561bb1d2440a8d040cefb43faece',
-		characteristics: [
-			toggle,
-      dim
-		]
-	})
-  ]);
-});
-
-eddystone.advertiseUrl(config.shortURL, {name: config.name});

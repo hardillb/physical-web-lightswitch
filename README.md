@@ -35,3 +35,4 @@ this can be done with this command:
 
  - Add current state to the web interface
  - Add Web Bluetooth Access API support
+ - Create basic Android App

@@ -1,4 +1,4 @@
-<html>
+<html manifest="light.appcache">
 <head>
 	<title>Light Switch</title>
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -58,37 +58,37 @@
 		};
 
 		
-		if (navigator.bluetooth) {
-			var ble = document.getElementById("ble");
-			ble.hidden = false;
-			ble.onclick = function() {
-				console.log("bluetooth found");
-				navigator.bluetooth.requestDevice({
-				  filters: [{
-				    services: ['ba42561b-b1d2-440a-8d04-0cefb43faece']
-				  }]
-				})
-				.then(device => {
-					console.log(device.name);
-					console.log(device.uuids);
-					device.connectGATT();
-				})
-				.then(server => {
-					return server.getPrimaryService('ba42561b-b1d2-440a-8d04-0cefb43faece');
-				})
-				.then(service => {
-					service.getCharacteristic('6bcb06e2-7475-42a9-a62a-54a1f3ce11e6');
-				})
-				.then( characteristic => {
-					//turn on
-					var resetEnergyExpended = new Uint8Array([1]);
-  					return characteristic.writeValue(resetEnergyExpended);
-				})
-				.catch(error => { 
-					console.log("error:- " + error); 
-				});
-			}
-		}
+		// if (navigator.bluetooth) {
+		// 	var ble = document.getElementById("ble");
+		// 	ble.hidden = false;
+		// 	ble.onclick = function() {
+		// 		console.log("bluetooth found");
+		// 		navigator.bluetooth.requestDevice({
+		// 		  filters: [{
+		// 		    services: ['ba42561b-b1d2-440a-8d04-0cefb43faece']
+		// 		  }]
+		// 		})
+		// 		.then(device => {
+		// 			console.log(device.name);
+		// 			console.log(device.uuids);
+		// 			device.connectGATT();
+		// 		})
+		// 		.then(server => {
+		// 			return server.getPrimaryService('ba42561b-b1d2-440a-8d04-0cefb43faece');
+		// 		})
+		// 		.then(service => {
+		// 			service.getCharacteristic('6bcb06e2-7475-42a9-a62a-54a1f3ce11e6');
+		// 		})
+		// 		.then( characteristic => {
+		// 			//turn on
+		// 			var resetEnergyExpended = new Uint8Array([1]);
+        // 					return characteristic.writeValue(resetEnergyExpended);
+		// 		})
+		// 		.catch(error => { 
+		// 			console.log("error:- " + error); 
+		// 		});
+		// 	}
+		// }
 	</script>
 </body>
 </html>
