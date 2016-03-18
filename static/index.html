@@ -1,7 +1,10 @@
 <html manifest="light.appcache">
 <head>
 	<title>Light Switch</title>
+	<link rel="manifest" href="manifest.json">
 	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="icon" size="32x32" href="bulb.png">
+	<link rel="apple-touch-icon" href="blub-256.png" />
 </head>
 <body>
 	<div id="controls">
@@ -14,18 +17,25 @@
 			<br />
 			<input id="dim" type="range" min="0" max="255" value="255" />
 		</div>
-		<div>
+		<div hidden="true">
 			<label for="colour">Colour</label>
 			<br />
 			<input type="color" id="colour" value="#ffffff"/>
 		</div>
 		<div>
-			<button id="ble" hidden="true">ble</button>
+			<button id="ble" hidden="true">Connect Bluetooth</button>
 		</div>
+	</div>
+	<div id="log">
+		
 	</div>
 	<script type="text/javascript">
 
+		var bluetoothDevice;
+		var toggleChar;
+		var dimChar;
 		var xhr = new XMLHttpRequest();
+
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4 && xhr.status == 200) {
 				console.log("done");
@@ -33,21 +43,38 @@
 		}
 		document.getElementById('on').onclick = function() {
 			console.log("on");
-			xhr.open("POST", "/toggle/on", true);
-			xhr.send();
+			if (bluetoothDevice && toggleChar) {
+				var toggleArray = new Uint8Array([1]);
+				toggleChar.writeValue(toggleArray);
+			} else {
+				xhr.open("POST", "/toggle/on", true);
+				xhr.send();
+			}
 		};
 
 		document.getElementById('off').onclick = function() {
 			console.log("off");
-			xhr.open("POST", "/toggle/off", true);
-			xhr.send();
+			if (bluetoothDevice && toggleChar) {
+				var toggleArray = new Uint8Array([0]);
+				toggleChar.writeValue(toggleArray);
+
+			} else {
+				xhr.open("POST", "/toggle/off", true);
+				xhr.send();
+			}
 		};
 
 		var dimmer = document.getElementById('dim');
 		dimmer.onchange = function() {
 			console.log(dimmer.value);
-			xhr.open("POST", "/dim/" + dimmer.value, true);
-			xhr.send();
+			if (bluetoothDevice && dimChar) {
+				var dimArray = new Uint8Array([dimmer.value]);
+				dimChar.writeValue(dimArray);
+
+			} else {
+				xhr.open("POST", "/dim/" + dimmer.value, true);
+				xhr.send();
+			}
 		};
 
 		var colour = document.getElementById('colour');
@@ -57,38 +84,63 @@
 			xhr.send();
 		};
 
+
+		function onDisconnect() {
+			if (toggleChar) {
+				toggleChar = undefined;
+			}
+
+			if (dimChar) {
+				dimChar = undefined;
+			}
+		}
+
 		
-		// if (navigator.bluetooth) {
-		// 	var ble = document.getElementById("ble");
-		// 	ble.hidden = false;
-		// 	ble.onclick = function() {
-		// 		console.log("bluetooth found");
-		// 		navigator.bluetooth.requestDevice({
-		// 		  filters: [{
-		// 		    services: ['ba42561b-b1d2-440a-8d04-0cefb43faece']
-		// 		  }]
-		// 		})
-		// 		.then(device => {
-		// 			console.log(device.name);
-		// 			console.log(device.uuids);
-		// 			device.connectGATT();
-		// 		})
-		// 		.then(server => {
-		// 			return server.getPrimaryService('ba42561b-b1d2-440a-8d04-0cefb43faece');
-		// 		})
-		// 		.then(service => {
-		// 			service.getCharacteristic('6bcb06e2-7475-42a9-a62a-54a1f3ce11e6');
-		// 		})
-		// 		.then( characteristic => {
-		// 			//turn on
-		// 			var resetEnergyExpended = new Uint8Array([1]);
-        // 					return characteristic.writeValue(resetEnergyExpended);
-		// 		})
-		// 		.catch(error => { 
-		// 			console.log("error:- " + error); 
-		// 		});
-		// 	}
-		// }
+		
+		if (navigator.bluetooth) {
+			var ble = document.getElementById("ble");
+			ble.hidden = false;
+			ble.onclick = function() {
+				console.log("bluetooth found");
+				navigator.bluetooth.requestDevice({
+				  filters: [{
+				  	namePrefix: 'Light'
+				    //services: ['ba42561b-b1d2-440a-8d04-0cefb43faece']
+				  }],
+				  optionalServices: ['ba42561b-b1d2-440a-8d04-0cefb43faece']
+				})
+				.then(device => {
+					bluetoothDevice = device;
+					console.log(bluetoothDevice.name);
+					console.log(bluetoothDevice.uuids);
+					console.log(bluetoothDevice);
+					//This can only work from Chrome v50+
+					//bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnect);
+					return bluetoothDevice.connectGATT();
+				})
+				.then(server => {
+					return server.getPrimaryService('ba42561b-b1d2-440a-8d04-0cefb43faece');
+				})
+				.then(service => {
+					service.getCharacteristic('6bcb06e2-7475-42a9-a62a-54a1f3ce11e6').then(char => {toggleChar = char});
+					service.getCharacteristic('6bcb06e2-7475-42a9-a62a-54a1f3ce11e5').then(char => {dimChar = char});
+
+					ble.hidden = true;
+				})
+				.catch(error => { 
+					console.log("error:- " + error); 
+				});
+			}
+		}
+
+		window.onbeforeunload = function (e) {
+			if (bluetoothDevice) {
+				if (bluetoothDevice.gatt.connected) {
+					bluetoothDevice.gatt.disconnect();
+					console.log("disconnected");
+				}
+			}
+		}
 	</script>
 </body>
 </html>

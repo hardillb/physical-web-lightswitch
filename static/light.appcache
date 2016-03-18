@@ -1,4 +1,7 @@
 CACHE MANIFEST
-# v0.0.1
-/index.html
-/style.css
+# v0.0.13
+index.html
+style.css
+bulb.png
+bulb-256.png
+manifest.json

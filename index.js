@@ -5,6 +5,7 @@ var fs = require('fs');
 var http = require('http');
 var https = require('https');
 var express = require('express');
+var morgan = require('morgan');
 
 var BlenoPrimarySerivce = bleno.PrimaryService;
 var ToggleCharacteristic = require('./ToggleCharacteristic');
@@ -43,6 +44,7 @@ var characteristics = [toggle, dim];
 
 
 var app = express();
+app.use(morgan('combined'));
 
 app.use(express.static('static'));
 
