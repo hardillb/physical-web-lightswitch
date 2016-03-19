@@ -47,7 +47,7 @@
 				var toggleArray = new Uint8Array([1]);
 				toggleChar.writeValue(toggleArray);
 			} else {
-				xhr.open("POST", "/toggle/on", true);
+				xhr.open("POST", "toggle/on", true);
 				xhr.send();
 			}
 		};
@@ -59,7 +59,7 @@
 				toggleChar.writeValue(toggleArray);
 
 			} else {
-				xhr.open("POST", "/toggle/off", true);
+				xhr.open("POST", "toggle/off", true);
 				xhr.send();
 			}
 		};
@@ -72,7 +72,7 @@
 				dimChar.writeValue(dimArray);
 
 			} else {
-				xhr.open("POST", "/dim/" + dimmer.value, true);
+				xhr.open("POST", "dim/" + dimmer.value, true);
 				xhr.send();
 			}
 		};
@@ -80,7 +80,7 @@
 		var colour = document.getElementById('colour');
 		colour.onchange = function() {
 			console.log(colour.value);
-			xhr.open("POST", "/rgb/" + colour.value.substring(1), true);
+			xhr.open("POST", "rgb/" + colour.value.substring(1), true);
 			xhr.send();
 		};
 
