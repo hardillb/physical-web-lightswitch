@@ -21,10 +21,12 @@ moment but it works.
 module.exports = {
 	deviceID: '231442B01005F2-94103EA2B27803ED',
 	port: 3000,
-	shortURL: 'http://s.loc/l'.
+	shortURL: 'https://s.loc/l'.
 	name: 'Lights'
 };
 ```
+
+The deviceID is the serial number of the WeMo Bridge and the light/group id concatenated with a '-'. 
 
 To run as a user other than root on Linux you will need to grant the NodeJS executable the right priveledges,
 this can be done with this command:
@@ -33,6 +35,6 @@ this can be done with this command:
 
 ## TODO
 
+ - Add Utility to print out device names and device id's to make creating the config file easier
  - Add current state to the web interface
- - Add Web Bluetooth Access API support
  - Create basic Android App

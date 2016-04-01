@@ -107,9 +107,9 @@ wemo.on('discovered', function(d){
 
     bleno.setServices([
       new BlenoPrimarySerivce({
-      uuid: 'ba42561bb1d2440a8d040cefb43faece',
-      characteristics: characteristics
-    })
+        uuid: 'ba42561bb1d2440a8d040cefb43faece',
+        characteristics: characteristics
+      })
     ]);
   });
 

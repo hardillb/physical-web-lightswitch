@@ -1,7 +1,8 @@
 CACHE MANIFEST
-# v0.0.14
+# v0.0.24
 index.html
 style.css
 bulb.png
+bulb.svg
 bulb-256.png
 manifest.json
