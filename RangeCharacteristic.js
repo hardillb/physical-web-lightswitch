@@ -5,12 +5,12 @@ function RangeCharacteristic(callback) {
   bleno.Characteristic.call(this, {
     uuid: '6bcb06e2747542a9a62a54a1f3ce11e5',
     properties: ['read', 'write', 'notify'],
-      descriptors: [
-        new bleno.Descriptor({
-          uuid: '2901',
-          value: 'Dim'
-        })
-      ]
+    descriptors: [
+      new bleno.Descriptor({
+        uuid: '2901',
+        value: 'Dim'
+      })
+    ]
   });
 
   this._state = 255;
